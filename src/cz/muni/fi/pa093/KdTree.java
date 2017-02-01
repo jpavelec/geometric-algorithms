@@ -50,23 +50,41 @@ public class KdTree {
         
     }
 
-    public static void getLines(KdNode node, List<Line> lines) {
+    public static List<Line> getLines(KdNode node, float minX, float minY, float maxX, float maxY) {
         
+        if (node == null ) {
+            return Collections.EMPTY_LIST;
+        }
         
+        List<Line> lines = new ArrayList<>();
         System.out.println("Hloubka "+node.getDepth());
         if (node.getDepth() % 2 == 0) {
-            System.out.println("Vertikalni pres "+node.getPoint());
-            lines.add(new Line(new Point(node.getPoint().getX(),-1), new Point(node.getPoint().getX(),1000)));
+            System.out.println("Primka vertikalne pres bod " + node.getPoint());
+            Point startPointOfLine = new Point(node.getPoint().getX(), minY);
+            Point endPointOfLine = new Point(node.getPoint().getX(), maxY);
+            lines.add(new Line(startPointOfLine, endPointOfLine));
+            if (node.getLesser() != null) {
+                lines.addAll(getLines(node.getLesser(), minX, minY, node.getPoint().getX(), maxY));
+            }
+            if (node.getGreater() !=null) {
+                lines.addAll(getLines(node.getGreater(), node.getPoint().getX(), minY, maxX, maxY));
+            }
+            return lines;
         } else {
-            System.out.println("Horizontalni pres "+node.getPoint());
-            lines.add(new Line(new Point(-1, node.getPoint().getY()), new Point(1000, node.getPoint().getY())));
+            System.out.println("Primka horizontalne pres bod " + node.getPoint());
+            Point startPointOfLine = new Point(minX, node.getPoint().getY());
+            Point endPointOfLine = new Point(maxX, node.getPoint().getY());
+            lines.add(new Line(startPointOfLine, endPointOfLine));
+            if (node.getLesser() != null) {
+                lines.addAll(getLines(node.getLesser(), minX, minY, maxX, node.getPoint().getY()));
+            }
+            if (node.getGreater() !=null) {
+                lines.addAll(getLines(node.getGreater(), minX, node.getPoint().getY(), maxX, maxY));
+            }
+            return lines;
+            
         }
-        if (node.getLesser() != null) {
-            getLines(node.getLesser(), lines);
-        }
-        if (node.getGreater() != null) {
-            getLines(node.getGreater(), lines);
-        }
+        
     }
     
     

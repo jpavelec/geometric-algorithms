@@ -5,6 +5,8 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Random;
 import javafx.application.Application;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.event.EventHandler;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
@@ -28,20 +30,21 @@ import javafx.stage.Stage;
  */
 public class Main extends Application {
     
-    private List<Point> points = new ArrayList<>();
+    private final List<Point> points = new ArrayList<>();
     private List<Line> lines = new ArrayList<>();
     
     private Algorithm algorithm = Algorithm.none;
     
-    private Canvas canvas = new Canvas(800,600);
+    private final Canvas canvas = new Canvas(800,600);
     
     private static final int POINT_RADIUS = 4;
-    private static final double LINE_WIDTH = 1;
     private static final Color POINT_COLOR = Color.BLUE;
     private static final Color CANVAS_COLOR = Color.WHITE;
     private static final Color LINE_GW_COLOR = Color.BLACK;
     private static final Color LINE_GRAHAM_COLOR = Color.BLACK;
-    private static final Color LINE_KD_COLOR = Color.BLUE;
+    private static final Color LINE_TRIAN = Color.BLACK;
+    private static final Color LINE_KD_HORIZONTAL_COLOR = Color.CORNFLOWERBLUE;
+    private static final Color LINE_KD_VERTICAL_COLOR = Color.LAWNGREEN;
     private static final Color LINE_DELAUNAY_COLOR = Color.MAGENTA;
     private static final Color LINE_VERONOI_COLOR = Color.RED;
     
@@ -53,12 +56,16 @@ public class Main extends Application {
         root.setSpacing(5);
         root.setPadding(new Insets(10));
         
+        Scene scene = new Scene(root, 960, 620);
+        stage.setScene(scene);
+        
         Group group = new Group(canvas);
         ToggleGroup radioButtonsAddDelete = new ToggleGroup();
                 
         GraphicsContext gc = canvas.getGraphicsContext2D();
         
         VBox vbox = new VBox();
+        vbox.setMinWidth(140);
         vbox.setSpacing(10);
         vbox.setPadding(new Insets(10));
         final RadioButton radioButtonAdd = new RadioButton("Add point");
@@ -73,6 +80,8 @@ public class Main extends Application {
         Button buttonClear = new Button("Clear");
         buttonClear.setTooltip(new Tooltip("Clear canvas"));
         Button buttonGenerate = new Button("Generate 5\nrandom points");
+        buttonClear.setMinWidth(120);
+        buttonGenerate.setMinWidth(120);
         
         ToggleGroup radioButtonsAlgorithms = new ToggleGroup();
         RadioButton radioButtonGift = new RadioButton("Gift wrapping");
@@ -107,6 +116,7 @@ public class Main extends Application {
                 radioButtonKD,
                 radioButtonDelaunay,
                 radioButtonVeronoi);
+        
         
         buttonClear.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>(){
             @Override
@@ -154,7 +164,6 @@ public class Main extends Application {
             @Override
             public void handle(MouseEvent event) {
                 algorithm = Algorithm.gift;
-                canvas.getGraphicsContext2D().setStroke(LINE_GW_COLOR);
                 refresh();
             }
             
@@ -164,7 +173,6 @@ public class Main extends Application {
             @Override
             public void handle(MouseEvent event) {
                 algorithm = Algorithm.graham;
-                canvas.getGraphicsContext2D().setStroke(LINE_GRAHAM_COLOR);
                 refresh();
             }
             
@@ -192,7 +200,6 @@ public class Main extends Application {
             @Override
             public void handle(MouseEvent event) {
                 algorithm = Algorithm.kd;
-                canvas.getGraphicsContext2D().setStroke(LINE_KD_COLOR);
                 refresh();
             }
             
@@ -202,7 +209,6 @@ public class Main extends Application {
             @Override
             public void handle(MouseEvent event) {
                 algorithm = Algorithm.delaunay;
-                canvas.getGraphicsContext2D().setStroke(LINE_DELAUNAY_COLOR);
                 refresh();
             }
             
@@ -212,10 +218,23 @@ public class Main extends Application {
             @Override
             public void handle(MouseEvent event) {
                 algorithm = Algorithm.veronoi;
-                canvas.getGraphicsContext2D().setStroke(LINE_VERONOI_COLOR);
                 refresh();
             }
             
+        });
+        
+        scene.widthProperty().addListener(new ChangeListener<Number>() {
+        @Override public void changed(ObservableValue<? extends Number> observableValue, Number oldSceneWidth, Number newSceneWidth) {
+            canvas.setWidth((double) newSceneWidth - 180);
+            refresh();
+            }
+        });
+        
+        scene.heightProperty().addListener(new ChangeListener<Number>() {
+        @Override public void changed(ObservableValue<? extends Number> observableValue, Number oldSceneHeight, Number newSceneHeight) {
+            canvas.setHeight((double) newSceneHeight - 20);
+            refresh();
+            }
         });
         
         generateRandomPoints(15);
@@ -225,8 +244,8 @@ public class Main extends Application {
         root.getChildren().add(group);
         
         
-        Scene scene = new Scene(root);
-        stage.setScene(scene);
+        
+        
         stage.show();
         
     }
@@ -237,30 +256,50 @@ public class Main extends Application {
         drawPoints();
         switch (algorithm) {
             case gift: lines = Line.getPolygonFromPoints(ConvexHull.giftWrapping(points));
+                      drawLines(1, LINE_GW_COLOR);
                       break;
             case graham: lines = Line.getPolygonFromPoints(ConvexHull.grahamScan(points));
+                         drawLines(1,LINE_GRAHAM_COLOR);
                          break;
             case trian:  lines = Line.getPolygonFromPoints(points);
-                        drawLines(3);
+                        drawLines(3, LINE_TRIAN);
                         lines = Triangulation.sweepLine(points);
-                        
+                        drawLines(1, LINE_TRIAN);
                         break;
             case trianConvex: lines = Line.getPolygonFromPoints(ConvexHull.grahamScan(points));
-                             drawLines(3);
+                             drawLines(3, LINE_TRIAN);
                              lines = Triangulation.sweepLine(ConvexHull.grahamScan(points));
+                             drawLines(1, LINE_TRIAN);
                              break;
             case kd: KdNode root = KdTree.buildKdTree(points, 0);
-                     lines.clear();
-                     System.out.println("Root "+root.getPoint());
-                     System.out.println("Mensi "+root.getLesser().getPoint());
-                     System.out.println("Vetsi "+root.getGreater().getPoint());
-                     KdTree.getLines(root, lines);
+                     System.out.println("Root je "+root.getPoint());
+                     lines = KdTree.getLines(root, 0, 0, (float) canvas.getWidth(), (float) canvas.getHeight());
+                     drawKdTree(1, LINE_KD_HORIZONTAL_COLOR, LINE_KD_VERTICAL_COLOR);
                      break;
             case delaunay: lines.clear(); break;
             case veronoi: lines.clear(); break;
             default: break;
         }
-        drawLines(1);
+        
+        
+    }
+    
+    private void drawKdTree(int width, Color horizontalColor, Color verticalColor) {
+        GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.setLineWidth(width);
+        for (Line l : lines) {
+            if (isHorizontal(l)) {
+                gc.setStroke(horizontalColor);
+            } else {
+                gc.setStroke(verticalColor);
+            }
+            gc.strokeLine(l.getStartPoint().getX(), l.getStartPoint().getY(),
+                          l.getEndPoint().getX(), l.getEndPoint().getY());
+        }
+    }
+    
+    private boolean isHorizontal(Line line) {
+        return Float.compare(line.getStartPoint().getX(), line.getEndPoint().getX()) == 0;
     }
     
     private void drawPoints() {
@@ -269,7 +308,7 @@ public class Main extends Application {
         gc.setFill(POINT_COLOR);
         for (Point p : points) {
             gc.fillOval(p.getX()-POINT_RADIUS, p.getY()-POINT_RADIUS, 2*POINT_RADIUS, 2*POINT_RADIUS);
-            gc.setLineWidth(LINE_WIDTH);
+            gc.setLineWidth(1);
             gc.strokeText(p.toString(), p.getX()+10, p.getY());
         }
     }
@@ -284,16 +323,13 @@ public class Main extends Application {
         }
     }
     
-    private void drawLines(int lineWidth) {
-        drawLines(lineWidth, Color.BLACK);
-    }
     
     private void clearCanvas() {
         GraphicsContext gc = canvas.getGraphicsContext2D();
         gc.setFill(CANVAS_COLOR);
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
         gc.setStroke(Color.BLACK);
-        gc.setLineWidth(LINE_WIDTH);
+        gc.setLineWidth(1);
         gc.strokeRect(0, 0, canvas.getWidth(), canvas.getHeight());
     }
     
