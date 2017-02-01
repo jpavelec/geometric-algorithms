@@ -25,21 +25,14 @@ public class KdTree {
         Point median;
         
         if (depth % 2 == 0) {
-            System.out.println("Hloubka " + depth+", seradim podle X");
             Collections.sort(points, new PointXandYComparator());
         } else {
-            System.out.println("Hloubka " + depth+", seradim podle Y");
             Collections.sort(points, new PointYandXComparator());
         }
         
         median = points.get(points.size()/2);
-        System.out.println("Median: "+median);
         lesserPoints.addAll(points.subList(0, points.indexOf(median)));
         greaterPoints.addAll(points.subList(points.indexOf(median) + 1, points.size()));
-        System.out.println("Body mensi nez median:");
-        for (Point p : lesserPoints) System.out.println(p);
-        System.out.println("Body vetsi nez median:");
-        for (Point p : greaterPoints) System.out.println(p);
         
         KdNode v = new KdNode(median,
                               depth,
@@ -57,9 +50,7 @@ public class KdTree {
         }
         
         List<Line> lines = new ArrayList<>();
-        System.out.println("Hloubka "+node.getDepth());
         if (node.getDepth() % 2 == 0) {
-            System.out.println("Primka vertikalne pres bod " + node.getPoint());
             Point startPointOfLine = new Point(node.getPoint().getX(), minY);
             Point endPointOfLine = new Point(node.getPoint().getX(), maxY);
             lines.add(new Line(startPointOfLine, endPointOfLine));
@@ -71,7 +62,6 @@ public class KdTree {
             }
             return lines;
         } else {
-            System.out.println("Primka horizontalne pres bod " + node.getPoint());
             Point startPointOfLine = new Point(minX, node.getPoint().getY());
             Point endPointOfLine = new Point(maxX, node.getPoint().getY());
             lines.add(new Line(startPointOfLine, endPointOfLine));

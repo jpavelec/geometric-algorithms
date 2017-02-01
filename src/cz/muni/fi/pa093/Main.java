@@ -272,7 +272,6 @@ public class Main extends Application {
                              drawLines(1, LINE_TRIAN);
                              break;
             case kd: KdNode root = KdTree.buildKdTree(points, 0);
-                     System.out.println("Root je "+root.getPoint());
                      lines = KdTree.getLines(root, 0, 0, (float) canvas.getWidth(), (float) canvas.getHeight());
                      drawKdTree(1, LINE_KD_HORIZONTAL_COLOR, LINE_KD_VERTICAL_COLOR);
                      break;
@@ -308,8 +307,8 @@ public class Main extends Application {
         gc.setFill(POINT_COLOR);
         for (Point p : points) {
             gc.fillOval(p.getX()-POINT_RADIUS, p.getY()-POINT_RADIUS, 2*POINT_RADIUS, 2*POINT_RADIUS);
-            gc.setLineWidth(1);
-            gc.strokeText(p.toString(), p.getX()+10, p.getY());
+    //        gc.setLineWidth(1);
+    //        gc.strokeText(p.toString(), p.getX()+10, p.getY());
         }
     }
     

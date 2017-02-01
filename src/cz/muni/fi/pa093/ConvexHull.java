@@ -45,7 +45,6 @@ public class ConvexHull {
                 }
             }
             giftWrapPoints.add(newPoint);
-            System.out.println(newPoint);
             px = middlePoint;
             middlePoint = newPoint;
         }
@@ -74,15 +73,9 @@ public class ConvexHull {
             }
         }
         
-        System.out.println("nejmensi: "+q);
-        
         List<Point> sortedByAngle = new ArrayList<Point>();
         sortedByAngle.addAll(points);
         Collections.sort(sortedByAngle, new PointAngleComparator(q));
-        System.out.println("Sorted by angle");
-        for (Point p:sortedByAngle) {
-            System.out.println(p);
-        }
         
         grahamScanPoints.add(q);
         grahamScanPoints.add(sortedByAngle.get(1));
@@ -92,21 +85,14 @@ public class ConvexHull {
         int j = 2;
         
         while (j<sortedByAngle.size()) {
-            System.out.println("j:"+j);
             Point pj = sortedByAngle.get(j);
             int length = grahamScanPoints.size();
-            System.out.println("Testuju "+pj+grahamScanPoints.get(length-1)+grahamScanPoints.get(length-2));
             if (Point.getOrientation(pj, grahamScanPoints.get(length-1), 
                                       grahamScanPoints.get(length-2)) > 0) {
                 grahamScanPoints.add(pj);
                 j++;
             } else {
                 grahamScanPoints.remove(length-1);
-            }
-            System.out.println("Konvex");
-            for (Point p:grahamScanPoints) {
-               
-                System.out.println(p);
             }
         }
         return grahamScanPoints;

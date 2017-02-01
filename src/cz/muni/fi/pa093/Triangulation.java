@@ -32,9 +32,6 @@ public class Triangulation {
         stack.push(points.get(1));
         
         for (int i = 2; i<points.size();i++) {
-            for (int k = 0; k<stack.size();k++){
-                System.out.println(stack.get(k));
-            }
             Point stackTop = stack.pop();
             if (isOnLeft(top, points.get(i), bottom) && 
                 isOnLeft(top, stackTop, bottom)) {
