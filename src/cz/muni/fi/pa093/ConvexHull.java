@@ -1,10 +1,8 @@
-
 package cz.muni.fi.pa093;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Stack;
 
 /**
  *
@@ -47,6 +45,7 @@ public class ConvexHull {
                 }
             }
             giftWrapPoints.add(newPoint);
+            System.out.println(newPoint);
             px = middlePoint;
             middlePoint = newPoint;
         }
@@ -54,12 +53,15 @@ public class ConvexHull {
         return giftWrapPoints;
     }
     
-    public static List<Point> grahamScan(List<Point> points) {
+    public static List<Point> grahamScan(List<Point> inputPoints) {
         List<Point> grahamScanPoints = new ArrayList<Point>();
-        if (points.size()<3) {
-            grahamScanPoints.addAll(points);
+        if (inputPoints.size()<3) {
+            grahamScanPoints.addAll(inputPoints);
             return grahamScanPoints;
         }
+        
+        List<Point> points = new ArrayList<>(inputPoints);
+        Collections.copy(points, inputPoints);
         
         Point q = points.get(0);
         for (Point p : points) {

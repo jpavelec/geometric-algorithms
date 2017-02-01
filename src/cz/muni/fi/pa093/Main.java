@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Random;
 import javafx.application.Application;
 import javafx.event.EventHandler;
+import javafx.event.EventType;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -20,6 +21,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.StrokeLineCap;
 import javafx.stage.Stage;
 
 /**
@@ -36,6 +38,7 @@ public class Main extends Application {
     private Canvas canvas = new Canvas(800,600);
     
     private static final int POINT_RADIUS = 4;
+    private static final double LINE_WIDTH = 1;
     private static final Color POINT_COLOR = Color.BLUE;
     private static final Color CANVAS_COLOR = Color.WHITE;
     private static final Color LINE_GW_COLOR = Color.BLACK;
@@ -80,8 +83,10 @@ public class Main extends Application {
         radioButtonGift.setToggleGroup(radioButtonsAlgorithms);
         RadioButton radioButtonGraham = new RadioButton("Graham scan");
         radioButtonGraham.setToggleGroup(radioButtonsAlgorithms);
-        RadioButton radioButtonTrian = new RadioButton("Triangulation");
-        radioButtonTrian.setToggleGroup(radioButtonsAlgorithms);
+        RadioButton radioButtonTrianPol = new RadioButton("Trian polygon");
+        radioButtonTrianPol.setToggleGroup(radioButtonsAlgorithms);
+        RadioButton radioButtonTrianHull = new RadioButton("Trian convec hull");
+        radioButtonTrianHull.setToggleGroup(radioButtonsAlgorithms);
         RadioButton radioButtonKD = new RadioButton("K-D tree");
         radioButtonKD.setToggleGroup(radioButtonsAlgorithms);
         RadioButton radioButtonDelaunay = new RadioButton("Delaunay");
@@ -101,7 +106,8 @@ public class Main extends Application {
                 new Separator(),
                 radioButtonGift,
                 radioButtonGraham,
-                radioButtonTrian,
+                radioButtonTrianPol,
+                radioButtonTrianHull,
                 radioButtonKD,
                 radioButtonDelaunay,
                 radioButtonVeronoi);
@@ -168,10 +174,20 @@ public class Main extends Application {
             
         });
         
-        radioButtonTrian.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+        radioButtonTrianPol.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
             @Override
             public void handle(MouseEvent event) {
                 algorithm = Algorithm.trian;
+                canvas.getGraphicsContext2D().setStroke(LINE_TRIAN_COLOR);
+                refresh();
+            }
+            
+        });
+        
+        radioButtonTrianHull.addEventHandler(MouseEvent.MOUSE_CLICKED, new EventHandler<MouseEvent>() {
+            @Override
+            public void handle(MouseEvent event) {
+                algorithm = Algorithm.trianConvex;
                 canvas.getGraphicsContext2D().setStroke(LINE_TRIAN_COLOR);
                 refresh();
             }
@@ -230,15 +246,21 @@ public class Main extends Application {
                       break;
             case graham: lines = Line.getPolygonFromPoints(ConvexHull.grahamScan(points));
                          break;
-            case trian:  System.out.println("Uhel mezi "+points.get(0)+points.get(1)+points.get(2));
-                        System.out.println(Point.getAngle(points.get(0),points.get(1),points.get(2)));
+            case trian:  lines = Line.getPolygonFromPoints(points);
+                        drawLines(3);
+                        lines = Triangulation.sweepLine(points);
+                        
                         break;
+            case trianConvex: lines = Line.getPolygonFromPoints(ConvexHull.grahamScan(points));
+                             drawLines(3);
+                             lines = Triangulation.sweepLine(ConvexHull.grahamScan(points));
+                             break;
             case kd: lines.clear(); break;
             case delaunay: lines.clear(); break;
             case veronoi: lines.clear(); break;
             default: break;
         }
-        drawLines();
+        drawLines(1);
     }
     
     private void drawPoints() {
@@ -247,16 +269,23 @@ public class Main extends Application {
         gc.setFill(POINT_COLOR);
         for (Point p : points) {
             gc.fillOval(p.getX()-POINT_RADIUS, p.getY()-POINT_RADIUS, 2*POINT_RADIUS, 2*POINT_RADIUS);
+            gc.setLineWidth(LINE_WIDTH);
             gc.strokeText(p.toString(), p.getX()+10, p.getY());
         }
     }
     
-    private void drawLines() {
+    private void drawLines(int lineWidth, Color lineColor) {
         GraphicsContext gc = canvas.getGraphicsContext2D();
+        gc.setStroke(lineColor);
+        gc.setLineWidth(lineWidth);
         for (Line l : lines) {
             gc.strokeLine(l.getStartPoint().getX(), l.getStartPoint().getY(),
                           l.getEndPoint().getX(), l.getEndPoint().getY());
         }
+    }
+    
+    private void drawLines(int lineWidth) {
+        drawLines(lineWidth, Color.BLACK);
     }
     
     private void clearCanvas() {
@@ -264,6 +293,7 @@ public class Main extends Application {
         gc.setFill(CANVAS_COLOR);
         gc.fillRect(0, 0, canvas.getWidth(), canvas.getHeight());
         gc.setStroke(Color.BLACK);
+        gc.setLineWidth(LINE_WIDTH);
         gc.strokeRect(0, 0, canvas.getWidth(), canvas.getHeight());
     }
     

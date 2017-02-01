@@ -36,6 +36,9 @@ public class Point {
     }
     
     public static float getAngle(Point startPoint, Point middlePoint, Point endPoint) {
+        if (startPoint.equals(middlePoint) || endPoint.equals(middlePoint)) {
+            return 0;
+        }
         // Vector u goes from startPoint to middlePoint and v goes from middlePoint to endPoint
         float u1, u2, v1, v2;
         u1 = middlePoint.getX()-startPoint.getX();
