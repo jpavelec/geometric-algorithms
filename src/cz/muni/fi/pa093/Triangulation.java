@@ -11,114 +11,89 @@ import java.util.Stack;
  */
 public class Triangulation {
     
-    public static List<Line> sweepLine(List<Point> points) {
-        /*
-        Point bottom = new Point(Float.NEGATIVE_INFINITY, Float.NEGATIVE_INFINITY);
-        Point top = new Point(Float.POSITIVE_INFINITY, Float.POSITIVE_INFINITY);
+    public static List<Line> sweepLine(List<Point> inputPoints) {
         
-        for (Point p : points) {
-            if (p.getY() < top.getY()) {
-                top = p;
-            }
-            if (p.getY() > bottom.getY()) {
-                bottom = p;
-            }
+        // Make a copy of input
+        List<Point> points = new ArrayList<>(inputPoints);
+        
+        if (points.size() < 2) {
+            return new ArrayList<>();
         }
         
-        System.out.println("Top & bottom"+top+bottom);
+        points.sort(new PointYandXComparator());
         
-        List<Point> leftPath = new ArrayList<>();
-        List<Point> rightPath = new ArrayList<>();
+        Point top = points.get(0);
+        Point bottom = points.get(points.size()-1);
         
-        for (Point p : points) {
-            if (isOnLeft(top, p, bottom)) {
-                leftPath.add(p);
-            } else {
-                rightPath.add(p);
-            }
-        }
+        Stack<Point> stack = new Stack<>();
+        List<Line> lines = new ArrayList<>();
         
-        System.out.println("Prava cesta ");
-        rightPath.sort(new PointYandXComparator());
-        for (Point p : rightPath) System.out.println(p);
+        stack.push(points.get(0));
+        stack.push(points.get(1));
         
-        System.out.println("Leva cesta ");
-        leftPath.sort(new PointYandXComparator());
-        for (Point p : leftPath) System.out.println(p);
-        
-        return null;*/
-        
-        List<Point> trianPoints = new ArrayList<>(points);
-        
-        Collections.copy(trianPoints, points);
-        
-        if (trianPoints.size() < 2) {
-            return new ArrayList<Line>();
-        }
-        
-        trianPoints.sort(new PointYandXComparator());
-        
-        Point top = trianPoints.get(0);
-        Point bottom = trianPoints.get(trianPoints.size()-1);
-        
-        Stack<Point> stack = new Stack<Point>();
-        List<Line> lines = new ArrayList<Line>();
-        
-        stack.push(trianPoints.get(0));
-        stack.push(trianPoints.get(1));
-        
-        for (int i = 2; i<trianPoints.size();i++) {
-            System.out.println("Obsah zasobniku:");
+        for (int i = 2; i<points.size();i++) {
             for (int k = 0; k<stack.size();k++){
                 System.out.println(stack.get(k));
             }
             Point stackTop = stack.pop();
-            if (isOnLeft(top, trianPoints.get(i), bottom) && 
+            if (isOnLeft(top, points.get(i), bottom) && 
                 isOnLeft(top, stackTop, bottom)) {
-                System.out.println("Body "+trianPoints.get(i)+stackTop+" jsou oba vlevo");
-  //              System.out.println("Bod "+stackTop+" je nalevo od vektoru "+points.get(i)+stack.peek());
-                while (!stack.isEmpty() && isOnRight(trianPoints.get(i), stackTop, stack.peek())) {
+                while (!stack.isEmpty() && isOnRight(points.get(i), stackTop, stack.peek())) {
                     
                     stackTop = stack.pop();
-                    lines.add(new Line(trianPoints.get(i), stackTop));
-                    System.out.println("Pridam diagonalu "+trianPoints.get(i)+stackTop);
+                    lines.add(new Line(points.get(i), stackTop));
                 }
                 stack.push(stackTop);
-                stack.push(trianPoints.get(i));
+                stack.push(points.get(i));
                 
-            } else if (isOnRight(top, trianPoints.get(i), bottom) &&
+            } else if (isOnRight(top, points.get(i), bottom) &&
                        isOnRight(top, stackTop, bottom)) {
-                System.out.println("Body "+trianPoints.get(i)+stackTop+" jsou oba vpravo");
-//                System.out.println("Bod "+stackTop+" je napravo od vektoru "+points.get(i)+stack.peek());
-                while (!stack.isEmpty() && isOnLeft(trianPoints.get(i), stackTop, stack.peek())) {
+                while (!stack.isEmpty() && isOnLeft(points.get(i), stackTop, stack.peek())) {
                     stackTop = stack.pop();
-                    lines.add(new Line(trianPoints.get(i), stackTop));
-                    System.out.println("Pridam diagonalu "+trianPoints.get(i)+stackTop);
+                    lines.add(new Line(points.get(i), stackTop));
                 }
                 stack.push(stackTop);
-                stack.push(trianPoints.get(i));
+                stack.push(points.get(i));
                 
             } else {
-                System.out.println("Body "+trianPoints.get(i)+stackTop+" jsou kazdy na jine ceste");
-                System.out.println("Pridam diagonalu "+trianPoints.get(i)+stackTop);
-                lines.add(new Line(trianPoints.get(i), stackTop));
+                lines.add(new Line(points.get(i), stackTop));
                 while (!stack.isEmpty()) {
-                    System.out.println("Pridam diagonalu "+trianPoints.get(i)+stack.peek());
-                    lines.add(new Line(trianPoints.get(i), stack.pop()));
+                    lines.add(new Line(points.get(i), stack.pop()));
                 }
                 stack.push(stackTop);
-                stack.push(trianPoints.get(i));
+                stack.push(points.get(i));
             }
         }
-        
         
         return lines;
     }
     
+    /**
+     * Determine point position due to vector which is formed by another two points.
+     * Consider vector v from Point p1 to Point p3. When Point p2 is on left side
+     * due to vector v return true. Return false otherwise.
+     * 
+     * @param p1 start point of vector v
+     * @param p2 point to position check
+     * @param p3 end point of vector v
+     * @return true when Point p2 is on left side due to vector v. 
+     * Return false otherwise (including points are in line).
+     */
     private static boolean isOnLeft(Point p1, Point p2, Point p3) {
         return Point.getOrientation(p1, p2, p3) < 0;
     }
     
+    /**
+     * Determine point position due to vector which is formed by another two points.
+     * Consider vector v from Point p1 to Point p3. When Point p2 is on right side
+     * due to vector v return true. Return false otherwise.
+     * 
+     * @param p1 start point of vector v
+     * @param p2 point to position check
+     * @param p3 end point of vector v
+     * @return true when Point p2 is on right side due to vector v.
+     * Return false otherwise (including points are in line).
+     */
     private static boolean isOnRight(Point p1, Point p2, Point p3) {
         return Point.getOrientation(p1, p2, p3) > 0;
     }

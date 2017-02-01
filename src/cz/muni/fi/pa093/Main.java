@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Random;
 import javafx.application.Application;
 import javafx.event.EventHandler;
-import javafx.event.EventType;
 import javafx.geometry.Insets;
 import javafx.scene.Group;
 import javafx.scene.Scene;
@@ -21,7 +20,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.StrokeLineCap;
 import javafx.stage.Stage;
 
 /**
@@ -43,7 +41,6 @@ public class Main extends Application {
     private static final Color CANVAS_COLOR = Color.WHITE;
     private static final Color LINE_GW_COLOR = Color.BLACK;
     private static final Color LINE_GRAHAM_COLOR = Color.BLACK;
-    private static final Color LINE_TRIAN_COLOR = Color.BROWN;
     private static final Color LINE_KD_COLOR = Color.BLUE;
     private static final Color LINE_DELAUNAY_COLOR = Color.MAGENTA;
     private static final Color LINE_VERONOI_COLOR = Color.RED;
@@ -74,7 +71,6 @@ public class Main extends Application {
                                                  "existing point by clicking on it"));
         radioButtonDelete.setToggleGroup(radioButtonsAddDelete);
         Button buttonClear = new Button("Clear");
-        //buttonClear.setShape(new Circle(35));
         buttonClear.setTooltip(new Tooltip("Clear canvas"));
         Button buttonGenerate = new Button("Generate 5\nrandom points");
         
@@ -85,7 +81,7 @@ public class Main extends Application {
         radioButtonGraham.setToggleGroup(radioButtonsAlgorithms);
         RadioButton radioButtonTrianPol = new RadioButton("Trian polygon");
         radioButtonTrianPol.setToggleGroup(radioButtonsAlgorithms);
-        RadioButton radioButtonTrianHull = new RadioButton("Trian convec hull");
+        RadioButton radioButtonTrianHull = new RadioButton("Trian convex hull");
         radioButtonTrianHull.setToggleGroup(radioButtonsAlgorithms);
         RadioButton radioButtonKD = new RadioButton("K-D tree");
         radioButtonKD.setToggleGroup(radioButtonsAlgorithms);
@@ -178,7 +174,6 @@ public class Main extends Application {
             @Override
             public void handle(MouseEvent event) {
                 algorithm = Algorithm.trian;
-                canvas.getGraphicsContext2D().setStroke(LINE_TRIAN_COLOR);
                 refresh();
             }
             
@@ -188,7 +183,6 @@ public class Main extends Application {
             @Override
             public void handle(MouseEvent event) {
                 algorithm = Algorithm.trianConvex;
-                canvas.getGraphicsContext2D().setStroke(LINE_TRIAN_COLOR);
                 refresh();
             }
             

@@ -49,6 +49,15 @@ public class Point {
                 (Math.sqrt(u1*u1+u2*u2)*Math.sqrt(v1*v1+v2*v2)));
     }
     
+    /**
+     * Determines clockwise direction points p1, p2, p3
+     * @param p1 start point
+     * @param p2 middle point
+     * @param p3 end point
+     * @return 0 when points lie in line, 
+     *         > 0 when points lie in counterclockwise
+     *         < 0 when points lie in clockwise
+     */
     public static float getOrientation(Point p1, Point p2, Point p3){
         return (p2.getX()-p1.getX())*(p3.getY()-p1.getY()) - 
                (p2.getY()-p1.getY())*(p3.getX()-p1.getX());
