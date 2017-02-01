@@ -249,7 +249,13 @@ public class Main extends Application {
                              drawLines(3);
                              lines = Triangulation.sweepLine(ConvexHull.grahamScan(points));
                              break;
-            case kd: lines.clear(); break;
+            case kd: KdNode root = KdTree.buildKdTree(points, 0);
+                     lines.clear();
+                     System.out.println("Root "+root.getPoint());
+                     System.out.println("Mensi "+root.getLesser().getPoint());
+                     System.out.println("Vetsi "+root.getGreater().getPoint());
+                     KdTree.getLines(root, lines);
+                     break;
             case delaunay: lines.clear(); break;
             case veronoi: lines.clear(); break;
             default: break;
