@@ -13,6 +13,8 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.Separator;
@@ -275,12 +277,23 @@ public class Main extends Application {
                      lines = KdTree.getLines(root, 0, 0, (float) canvas.getWidth(), (float) canvas.getHeight());
                      drawKdTree(1, LINE_KD_HORIZONTAL_COLOR, LINE_KD_VERTICAL_COLOR);
                      break;
-            case delaunay: lines.clear(); break;
-            case veronoi: lines.clear(); break;
+            case delaunay: notSupported();
+                          break;
+            case veronoi: notSupported();
+                         break;
             default: break;
         }
         
         
+    }
+    
+    private static void notSupported() {
+        Alert alert = new Alert(AlertType.ERROR);
+        alert.setTitle("Not Supported");
+        alert.setHeaderText(null);
+        alert.setContentText("Sorry, this operation is not supported yet");
+
+        alert.showAndWait();
     }
     
     private void drawKdTree(int width, Color horizontalColor, Color verticalColor) {
