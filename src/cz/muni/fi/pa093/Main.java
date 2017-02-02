@@ -280,11 +280,7 @@ public class Main extends Application {
             case delaunay: lines = Delaunay.delaunay(points);
                           drawLines(1, LINE_DELAUNAY_COLOR);
                           break;
-            case veronoi: Line l1, l2;
-                         l1 = new Line(new Point(0,0), new Point(0,100));
-                         l2 = new Line(new Point(0,0),new Point(0,100));
-                         System.out.println(l1.hashCode());
-                         System.out.println(l2.hashCode());
+            case veronoi: notSupported();
                          break;
             default: break;
         }

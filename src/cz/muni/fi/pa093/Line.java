@@ -25,11 +25,11 @@ public class Line {
         this.endPoint = endPoint;
     }
     
-    public void swap() {
+    /*public void swap() {
         Point p = this.startPoint;
         this.startPoint = endPoint;
         this.endPoint = p;
-    }
+    }*/
 
     public Point getStartPoint() {
         return startPoint;

@@ -30,13 +30,15 @@ public class Delaunay {
         
         Line e = new Line(p1, p2);
         Point p = getPointWithMinDelaunayDistanceOnLeft(e, points);
+        Line e2 = new Line(p2, p);
+        Line e3 = new Line(p, p1);
         
         if (p == null) {
             e = new Line(p2, p1);
+            p = getPointWithMinDelaunayDistanceOnLeft(e, points);
+            e2 = new Line(p, p2);
+            e3 = new Line(p1, p);
         }
-        p = getPointWithMinDelaunayDistanceOnLeft(e, points);
-        Line e2 = new Line(p2, p);
-        Line e3 = new Line(p, p1);
         
         List<Line> AEL = new ArrayList<>();
         List<Line> DT = new ArrayList<>();
@@ -44,49 +46,27 @@ public class Delaunay {
         addToAEL(e2, AEL, DT);
         addToAEL(e3, AEL, DT);
 
-        int i = 0;
         while (!AEL.isEmpty()) {
-            System.out.println("================================\nKolo cislo: "+i+"\nV AEL jsou hrany: ");
-            for (Line l : AEL) {
-                System.out.println(l);
-            }
-            System.out.println("V DT jsou hrany: ");
-            for (Line l : DT) {
-                System.out.println(l);
-            }
-            System.out.println("Vezmeme prvni hranu ze seznamu AEL, tj "+AEL.get(0));
             e = AEL.get(0);
             p1 = e.getStartPoint();
             p2 = e.getEndPoint();
-            e = new Line(p2, p1);
-            System.out.println("Bod p1: "+p1);
-            System.out.println("Bod p2: "+p2);
-            System.out.println("Provedeme swap hrany na "+e);
-            p = getPointWithMinDelaunayDistanceOnLeft(e, points);
+            Line eSwapped = new Line(p2, p1);
+            p = getPointWithMinDelaunayDistanceOnLeft(eSwapped, points);
             if (p != null) {
-                System.out.println("Bod nalevo od "+e+" s nejmensi Del. vzd. je " + p);
-                e2 = new Line(p2, p);
-                e3 = new Line(p, p1);
-                System.out.println("Chcu pridat "+e2+" do AEL. Je e2/e2.swap() v AEL nebo DT?");
+                e2 = new Line(p, eSwapped.getStartPoint());
+                e3 = new Line(eSwapped.getEndPoint(), p);
                 if (!DT.contains(e2) && !AEL.contains(e2) && 
                     !DT.contains(new Line(e2.getEndPoint(), e2.getStartPoint())) &&
                     !AEL.contains(new Line(e2.getEndPoint(), e2.getStartPoint()))) {
                     addToAEL(e2, AEL, DT);
                 }                
-                System.out.println("Chcu pridat "+e3+" do AEL. Je e3/e3.swap() v AEL nebo DT?");
                 if (!DT.contains(e3) && !AEL.contains(e3) && 
                     !DT.contains(new Line(e3.getEndPoint(), e3.getStartPoint())) &&
                     !AEL.contains(new Line(e3.getEndPoint(), e3.getStartPoint()))) {
-                    System.out.println("Do AEL pridam "+e3);
                     addToAEL(e3, AEL, DT);
                 }
             }
-            e.swap();
-            System.out.println("Do DT pridam "+e);
-            //DT.add(e);
-            System.out.println("Z AEL odeberu "+e);
             AEL.remove(e);
-            i++;
         }
         
         return DT;
@@ -94,11 +74,9 @@ public class Delaunay {
     }
 
     private static Point getPointWithMinDelaunayDistanceOnLeft(Line e, List<Point> points) {
-        System.out.println("-----------------------------\nBody nalevo od hrany "+e);
         Point minOnLeft = null;
         for (Point p : points) {
             if (Point.isOnLeft(e.getStartPoint(), p, e.getEndPoint())) {
-                System.out.println(p);
                 if (minOnLeft == null) {
                     minOnLeft = p;
                     continue;
@@ -108,7 +86,6 @@ public class Delaunay {
                 }
             }
         }
-        System.out.println("S nejmensi Del. vzd. je " + minOnLeft+"\n-----------------------------");
         return minOnLeft;
     }
     
@@ -140,8 +117,8 @@ public class Delaunay {
     }
 
     private static void addToAEL(Line e, List<Line> AEL, List<Line> DT) {
-        Line e2Swapped = new Line(e.getEndPoint(), e.getStartPoint());
-        if (AEL.contains(e2Swapped)) {
+        Line eSwapped = new Line(e.getEndPoint(), e.getStartPoint());
+        if (AEL.contains(eSwapped)) {
             AEL.remove(e);
         } else {
             AEL.add(e);
