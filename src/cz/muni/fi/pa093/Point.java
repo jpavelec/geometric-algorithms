@@ -55,12 +55,48 @@ public class Point {
      * @param p2 middle point
      * @param p3 end point
      * @return 0 when points lie in line, 
-     *         > 0 when points lie in counterclockwise
-     *         < 0 when points lie in clockwise
+     *         < 0 when points lie in counterclockwise
+     *         > 0 when points lie in clockwise
      */
-    public static float getOrientation(Point p1, Point p2, Point p3){
-        return (p2.getX()-p1.getX())*(p3.getY()-p1.getY()) - 
-               (p2.getY()-p1.getY())*(p3.getX()-p1.getX());
+    public static float getOrientation(Point p1, Point p2, Point p3) {
+        return ( p2.getX()-p1.getX() ) * ( p3.getY()-p1.getY() ) - 
+               ( p2.getY()-p1.getY() ) * ( p3.getX()-p1.getX() );
+    }
+    
+    /**
+     * Determine point position due to vector which is formed by another two points.
+     * Consider vector v from Point p1 to Point p3. When Point p2 is on left side
+     * due to vector v return true. Return false otherwise.
+     * 
+     * @param p1 start point of vector v
+     * @param p2 point to position check
+     * @param p3 end point of vector v
+     * @return true when Point p2 is on left side due to vector v. 
+     * Return false otherwise (including points are in line).
+     */
+    public static boolean isOnLeft(Point p1, Point p2, Point p3) {
+        return getOrientation(p1, p2, p3) > 0;
+    }
+    
+    /**
+     * Determine point position due to vector which is formed by another two points.
+     * Consider vector v from Point p1 to Point p3. When Point p2 is on right side
+     * due to vector v return true. Return false otherwise.
+     * 
+     * @param p1 start point of vector v
+     * @param p2 point to position check
+     * @param p3 end point of vector v
+     * @return true when Point p2 is on right side due to vector v.
+     * Return false otherwise (including points are in line).
+     */
+    public static boolean isOnRight(Point p1, Point p2, Point p3) {
+        return getOrientation(p1, p2, p3) < 0;
+    }
+    
+    public static float getDistance(Point p1, Point p2) {
+        float diffX = p2.getX() - p1.getX();
+        float diffY = p2.getY() - p1.getY();
+        return (float) Math.sqrt(diffX*diffX + diffY*diffY);
     }
 
     @Override

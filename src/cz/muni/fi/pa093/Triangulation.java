@@ -33,9 +33,9 @@ public class Triangulation {
         
         for (int i = 2; i<points.size();i++) {
             Point stackTop = stack.pop();
-            if (isOnLeft(top, points.get(i), bottom) && 
-                isOnLeft(top, stackTop, bottom)) {
-                while (!stack.isEmpty() && isOnRight(points.get(i), stackTop, stack.peek())) {
+            if (Point.isOnLeft(top, points.get(i), bottom) && 
+                Point.isOnLeft(top, stackTop, bottom)) {
+                while (!stack.isEmpty() && Point.isOnRight(points.get(i), stackTop, stack.peek())) {
                     
                     stackTop = stack.pop();
                     lines.add(new Line(points.get(i), stackTop));
@@ -43,9 +43,9 @@ public class Triangulation {
                 stack.push(stackTop);
                 stack.push(points.get(i));
                 
-            } else if (isOnRight(top, points.get(i), bottom) &&
-                       isOnRight(top, stackTop, bottom)) {
-                while (!stack.isEmpty() && isOnLeft(points.get(i), stackTop, stack.peek())) {
+            } else if (Point.isOnRight(top, points.get(i), bottom) &&
+                       Point.isOnRight(top, stackTop, bottom)) {
+                while (!stack.isEmpty() && Point.isOnLeft(points.get(i), stackTop, stack.peek())) {
                     stackTop = stack.pop();
                     lines.add(new Line(points.get(i), stackTop));
                 }
@@ -65,34 +65,6 @@ public class Triangulation {
         return lines;
     }
     
-    /**
-     * Determine point position due to vector which is formed by another two points.
-     * Consider vector v from Point p1 to Point p3. When Point p2 is on left side
-     * due to vector v return true. Return false otherwise.
-     * 
-     * @param p1 start point of vector v
-     * @param p2 point to position check
-     * @param p3 end point of vector v
-     * @return true when Point p2 is on left side due to vector v. 
-     * Return false otherwise (including points are in line).
-     */
-    private static boolean isOnLeft(Point p1, Point p2, Point p3) {
-        return Point.getOrientation(p1, p2, p3) < 0;
-    }
     
-    /**
-     * Determine point position due to vector which is formed by another two points.
-     * Consider vector v from Point p1 to Point p3. When Point p2 is on right side
-     * due to vector v return true. Return false otherwise.
-     * 
-     * @param p1 start point of vector v
-     * @param p2 point to position check
-     * @param p3 end point of vector v
-     * @return true when Point p2 is on right side due to vector v.
-     * Return false otherwise (including points are in line).
-     */
-    private static boolean isOnRight(Point p1, Point p2, Point p3) {
-        return Point.getOrientation(p1, p2, p3) > 0;
-    }
 
 }

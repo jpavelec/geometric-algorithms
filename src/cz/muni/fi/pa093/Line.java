@@ -24,6 +24,12 @@ public class Line {
         this.startPoint = startPoint;
         this.endPoint = endPoint;
     }
+    
+    public void swap() {
+        Point p = this.startPoint;
+        this.startPoint = endPoint;
+        this.endPoint = p;
+    }
 
     public Point getStartPoint() {
         return startPoint;
@@ -88,6 +94,12 @@ public class Line {
         }
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "Line{"+ startPoint + "; " + endPoint + '}';
+    }
+    
     
     
 

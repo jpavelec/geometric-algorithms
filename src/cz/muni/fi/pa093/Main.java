@@ -239,7 +239,7 @@ public class Main extends Application {
             }
         });
         
-        generateRandomPoints(15);
+        //generateRandomPoints(15);
         drawPoints();
         
         root.getChildren().add(vbox);
@@ -277,9 +277,14 @@ public class Main extends Application {
                      lines = KdTree.getLines(root, 0, 0, (float) canvas.getWidth(), (float) canvas.getHeight());
                      drawKdTree(1, LINE_KD_HORIZONTAL_COLOR, LINE_KD_VERTICAL_COLOR);
                      break;
-            case delaunay: notSupported();
+            case delaunay: lines = Delaunay.delaunay(points);
+                          drawLines(1, LINE_DELAUNAY_COLOR);
                           break;
-            case veronoi: notSupported();
+            case veronoi: Line l1, l2;
+                         l1 = new Line(new Point(0,0), new Point(0,100));
+                         l2 = new Line(new Point(0,0),new Point(0,100));
+                         System.out.println(l1.hashCode());
+                         System.out.println(l2.hashCode());
                          break;
             default: break;
         }
@@ -320,8 +325,8 @@ public class Main extends Application {
         gc.setFill(POINT_COLOR);
         for (Point p : points) {
             gc.fillOval(p.getX()-POINT_RADIUS, p.getY()-POINT_RADIUS, 2*POINT_RADIUS, 2*POINT_RADIUS);
-    //        gc.setLineWidth(1);
-    //        gc.strokeText(p.toString(), p.getX()+10, p.getY());
+            gc.setLineWidth(1);
+            gc.strokeText(p.toString(), p.getX()+10, p.getY());
         }
     }
     
@@ -348,8 +353,8 @@ public class Main extends Application {
     private void generateRandomPoints(int countOfPoints) {
         Random random = new Random(System.currentTimeMillis());
         for (int i=0;i<countOfPoints;i++) {
-            points.add(new Point(50+random.nextFloat()*(float)(canvas.getWidth()-100),
-                                 50+random.nextFloat()*(float)(canvas.getHeight()-100)));
+            points.add(new Point(50+random.nextInt((int) (canvas.getWidth()-100)),
+                                 50+random.nextInt((int) (canvas.getHeight()-100))));
         }
     }
     
