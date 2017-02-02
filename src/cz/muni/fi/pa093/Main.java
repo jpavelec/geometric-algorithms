@@ -13,8 +13,6 @@ import javafx.scene.Group;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.RadioButton;
 import javafx.scene.control.Separator;
@@ -47,7 +45,7 @@ public class Main extends Application {
     private static final Color LINE_TRIAN = Color.BLACK;
     private static final Color LINE_KD_HORIZONTAL_COLOR = Color.CORNFLOWERBLUE;
     private static final Color LINE_KD_VERTICAL_COLOR = Color.LAWNGREEN;
-    private static final Color LINE_DELAUNAY_COLOR = Color.MAGENTA;
+    private static final Color LINE_DELAUNAY_COLOR = Color.BLACK;
     private static final Color LINE_VERONOI_COLOR = Color.RED;
     
     
@@ -239,13 +237,11 @@ public class Main extends Application {
             }
         });
         
-        //generateRandomPoints(15);
+        generateRandomPoints(10);
         drawPoints();
         
         root.getChildren().add(vbox);
         root.getChildren().add(group);
-        
-        
         
         
         stage.show();
@@ -257,44 +253,45 @@ public class Main extends Application {
     private void refresh() {
         drawPoints();
         switch (algorithm) {
-            case gift: lines = Line.getPolygonFromPoints(ConvexHull.giftWrapping(points));
-                      drawLines(1, LINE_GW_COLOR);
-                      break;
-            case graham: lines = Line.getPolygonFromPoints(ConvexHull.grahamScan(points));
-                         drawLines(1,LINE_GRAHAM_COLOR);
-                         break;
-            case trian:  lines = Line.getPolygonFromPoints(points);
-                        drawLines(3, LINE_TRIAN);
-                        lines = Triangulation.sweepLine(points);
-                        drawLines(1, LINE_TRIAN);
-                        break;
-            case trianConvex: lines = Line.getPolygonFromPoints(ConvexHull.grahamScan(points));
-                             drawLines(3, LINE_TRIAN);
-                             lines = Triangulation.sweepLine(ConvexHull.grahamScan(points));
-                             drawLines(1, LINE_TRIAN);
-                             break;
-            case kd: KdNode root = KdTree.buildKdTree(points, 0);
-                     lines = KdTree.getLines(root, 0, 0, (float) canvas.getWidth(), (float) canvas.getHeight());
-                     drawKdTree(1, LINE_KD_HORIZONTAL_COLOR, LINE_KD_VERTICAL_COLOR);
-                     break;
-            case delaunay: lines = Delaunay.delaunay(points);
-                          drawLines(1, LINE_DELAUNAY_COLOR);
-                          break;
-            case veronoi: notSupported();
-                         break;
+            case gift:
+                lines = Line.getPolygonFromPoints(ConvexHull.giftWrapping(points));
+                drawLines(1, LINE_GW_COLOR);
+                break;
+            case graham: 
+                lines = Line.getPolygonFromPoints(ConvexHull.grahamScan(points));
+                drawLines(1,LINE_GRAHAM_COLOR);
+                break;
+            case trian:  
+                lines = Line.getPolygonFromPoints(points);
+                drawLines(3, LINE_TRIAN);
+                lines = Triangulation.sweepLine(points);
+                drawLines(1, LINE_TRIAN);
+                break;
+            case trianConvex: 
+                lines = Line.getPolygonFromPoints(ConvexHull.grahamScan(points));
+                drawLines(3, LINE_TRIAN);
+                lines = Triangulation.sweepLine(ConvexHull.grahamScan(points));
+                drawLines(1, LINE_TRIAN);
+                break;
+            case kd: 
+                KdNode root = KdTree.buildKdTree(points, 0);
+                lines = KdTree.getLines(root, 0, 0, (float) canvas.getWidth(), (float) canvas.getHeight());
+                drawKdTree(1, LINE_KD_HORIZONTAL_COLOR, LINE_KD_VERTICAL_COLOR);
+                break;
+            case delaunay: 
+                lines = Delaunay.delaunayLines(points);
+                drawLines(1, LINE_DELAUNAY_COLOR);
+                break;
+            case veronoi:
+                lines =  Delaunay.delaunayLines(points);
+                drawLines(1, Color.GREY);
+                lines = Voronoi.voronoi(points);
+                drawLines(1, LINE_VERONOI_COLOR);
+                break;
             default: break;
         }
         
         
-    }
-    
-    private static void notSupported() {
-        Alert alert = new Alert(AlertType.ERROR);
-        alert.setTitle("Not Supported");
-        alert.setHeaderText(null);
-        alert.setContentText("Sorry, this operation is not supported yet");
-
-        alert.showAndWait();
     }
     
     private void drawKdTree(int width, Color horizontalColor, Color verticalColor) {
@@ -311,7 +308,7 @@ public class Main extends Application {
         }
     }
     
-    private boolean isHorizontal(Line line) {
+    private static boolean isHorizontal(Line line) {
         return Float.compare(line.getStartPoint().getX(), line.getEndPoint().getX()) == 0;
     }
     
@@ -321,8 +318,6 @@ public class Main extends Application {
         gc.setFill(POINT_COLOR);
         for (Point p : points) {
             gc.fillOval(p.getX()-POINT_RADIUS, p.getY()-POINT_RADIUS, 2*POINT_RADIUS, 2*POINT_RADIUS);
-            gc.setLineWidth(1);
-            gc.strokeText(p.toString(), p.getX()+10, p.getY());
         }
     }
     

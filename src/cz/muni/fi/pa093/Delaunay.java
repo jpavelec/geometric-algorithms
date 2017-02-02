@@ -11,7 +11,17 @@ import java.util.Random;
  */
 public class Delaunay {
     
-    public static List<Line> delaunay(List<Point> points) {
+    public static List<Triangle> delaunayTriangles(List<Point> points) {
+        return delaunay(points, new ArrayList<>());
+    }
+    
+    public static List<Line> delaunayLines(List<Point> points) {
+        List<Line> lines = new ArrayList<>();
+        delaunay(points, lines);
+        return lines;
+    }
+    
+    public static List<Triangle> delaunay(List<Point> points, List<Line> lines) {
         
         if (points.size() < 3) {
             return Collections.EMPTY_LIST;
@@ -42,9 +52,11 @@ public class Delaunay {
         
         List<Line> AEL = new ArrayList<>();
         List<Line> DT = new ArrayList<>();
+        List<Triangle> triangles = new ArrayList<>();
         addToAEL(e, AEL, DT);
         addToAEL(e2, AEL, DT);
         addToAEL(e3, AEL, DT);
+        triangles.add(new Triangle(p, p1, p2));
 
         while (!AEL.isEmpty()) {
             e = AEL.get(0);
@@ -65,11 +77,13 @@ public class Delaunay {
                     !AEL.contains(new Line(e3.getEndPoint(), e3.getStartPoint()))) {
                     addToAEL(e3, AEL, DT);
                 }
+                triangles.add(new Triangle(p, p1, p2));
             }
             AEL.remove(e);
         }
-        
-        return DT;
+        lines.clear();
+        lines.addAll(DT);
+        return triangles;
         
     }
 
@@ -90,31 +104,14 @@ public class Delaunay {
     }
     
     public static float getDelaunayDistance(Line e, Point p) {
-        Point center = getCenterOfCircumscribedCircle(e.getStartPoint(), e.getEndPoint(), p);
+        Point center = Triangle.getCenterOfCircumscribedCircle(e.getStartPoint(), e.getEndPoint(), p);
         if (Point.isOnLeft(e.getStartPoint(), center, e.getEndPoint())) {
             return Point.getDistance(p, center);
         }
         return - Point.getDistance(p, center);
     }
     
-    //https://en.wikipedia.org/wiki/Circumscribed_circle#Cartesian_coordinates_2
-    public static Point getCenterOfCircumscribedCircle(Point a, Point b, Point c) {
-        float ax = a.getX();
-        float ay = a.getY();
-        float bx = b.getX();
-        float by = b.getY();
-        float cx = c.getX();
-        float cy = c.getY();
-        
-        float d = 2*(ax*(by-cy)+bx*(cy-ay)+cx*(ay-by));
-        float centerX = ( (ax*ax+ay*ay)*(by-cy) + (bx*bx+by*by)*(cy-ay) + 
-                          (cx*cx+cy*cy)*(ay-by) ) / d;
-        float centerY = ( (ax*ax+ay*ay)*(cx-bx) + (bx*bx+by*by)*(ax-cx) +
-                          (cx*cx+cy*cy)*(bx-ax) ) / d;
-        
-        return new Point(centerX, centerY);
-        
-    }
+    
 
     private static void addToAEL(Line e, List<Line> AEL, List<Line> DT) {
         Line eSwapped = new Line(e.getEndPoint(), e.getStartPoint());
